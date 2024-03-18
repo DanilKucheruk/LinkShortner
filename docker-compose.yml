@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  client-backend:
+    image: link-shorter:0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT= 8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/linkshorter
+
+  postgres:
+    image: 'postgres:14.1'
+    ports:
+    - 5432:5432
+    environment:
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=1234'
+      - 'POSTGRES_DB=linkshorter'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
